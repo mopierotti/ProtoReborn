@@ -19,10 +19,18 @@ public class LibgdxGame implements ApplicationListener {
 	
 	private int stageWidth = 800;
 	private int stageHeight = 480;
+	private int realWidth = 800;
+	private int realHeight = 480;
 	private Stage stage;
+	
+	private SpriteBatch gutterBatch;
+	private Texture gutterTexture;
 	
 	@Override
 	public void create() {
+		gutterTexture = new Texture(Gdx.files.internal("data/gutterTexture.png"));
+		gutterBatch = new SpriteBatch();
+		
 		Actor textActor = new FrameRateDisplayActor();
 		Group primaryGroup = new Group();
 		primaryGroup.addActor(textActor);
@@ -51,14 +59,18 @@ public class LibgdxGame implements ApplicationListener {
 	@Override
 	public void render() {	
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		drawPatternInGutters(stage);
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
 	}
 
 	@Override
 	public void resize(int width, int height) {
+		realWidth = width;
+		realHeight = height;
         stage.setViewport(stageWidth, stageHeight, true);
         stage.getCamera().translate(-stage.getGutterWidth(), -stage.getGutterHeight(), 0);
+        camera.setToOrtho(false, width, height);
 	}
 
 	@Override
@@ -67,5 +79,36 @@ public class LibgdxGame implements ApplicationListener {
 
 	@Override
 	public void resume() {
+	}
+	
+	private void drawPatternInGutters(Stage stage){
+		batch.setProjectionMatrix(camera.combined);
+		batch.begin();
+		float gutterWidth = stage.getGutterWidth();
+		float gutterHeight = stage.getGutterHeight();
+		int textureWidth = gutterTexture.getWidth();
+		int textureHeight = gutterTexture.getHeight();
+		if(Math.abs(gutterWidth)>0.001){
+			//draw left and right gutters
+			for (int i = 0; i<gutterWidth*2;){
+				for (int j = 0; j<realHeight;){
+					batch.draw(gutterTexture,i,j,textureWidth,textureHeight);
+					batch.draw(gutterTexture,realWidth-gutterWidth*2+i,j,textureWidth,textureHeight);
+					j+=textureHeight;
+				}
+				i+=textureWidth;
+			}
+		}else{
+			//draw top and bottom gutters
+			for (int i = 0; i<gutterHeight*2;){
+				for (int j = 0; j<realWidth;){
+					batch.draw(gutterTexture,j,i,textureWidth,textureHeight);
+					batch.draw(gutterTexture,j,realHeight-gutterHeight*2+i,textureWidth,textureHeight);
+					j+=textureWidth;
+				}
+				i+=textureHeight;
+			}
+		}
+		batch.end();
 	}
 }
