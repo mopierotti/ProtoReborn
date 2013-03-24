@@ -1,6 +1,5 @@
 d:
 d:data
-i:data/escheresque_ste.png
-i:data/libgdx.png
+i:data/gutterTexture.png
 t:data/testFont.fnt
 i:data/testFont_0.png

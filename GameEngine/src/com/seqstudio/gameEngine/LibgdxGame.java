@@ -14,8 +14,6 @@ import com.seqstudio.gameEngine.actors.FrameRateDisplayActor;
 
 public class LibgdxGame implements ApplicationListener {
 	private OrthographicCamera camera;
-	private SpriteBatch gutterBatch;
-	private Texture texture;
 	
 	private int stageWidth = 800;
 	private int stageHeight = 480;
@@ -24,30 +22,23 @@ public class LibgdxGame implements ApplicationListener {
 	private Stage stage;
 	
 	private Texture gutterTexture;
-
-	//Timestep logic variables
-	private float deltaTime;
-	private int stepsToTake;
-	private float timeAccumulator = 0;
-	private float timeStep = 0.008333333f;
-	
+	private SpriteBatch gutterBatch;
 	
 	@Override
 	public void create() {
 		gutterTexture = new Texture(Gdx.files.internal("data/gutterTexture.png"));
 		
+		stage = new Stage();
+		Gdx.input.setInputProcessor(stage);
+		
 		Actor textActor = new FrameRateDisplayActor();
 		Group primaryGroup = new Group();
 		primaryGroup.addActor(textActor);
-		
 		Actor background = new FlatBackgroundActor(1, 1, 1, 1);
 		background.setBounds(0, 0, stageWidth, stageHeight);
 		primaryGroup.addActorAt(0, background);
-		stage = new Stage();
 		stage.addActor(primaryGroup);
 		
-        Gdx.input.setInputProcessor(stage);
-        
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, stageWidth, stageHeight);
 		gutterBatch = new SpriteBatch();
@@ -56,15 +47,19 @@ public class LibgdxGame implements ApplicationListener {
 	@Override
 	public void dispose() {
 		stage.dispose();
-
 		gutterBatch.dispose();
-		texture.dispose();
 	}
+	
+	//Timestep logic variables
+	private float deltaTime;
+	private int stepsToTake;
+	private float timeAccumulator = 0;
+	private float timeStep = 0.008333333f;
 
 	@Override
 	public void render() {	
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		drawPatternInGutters(stage);
+		drawPatternInGutters(stage); //Draw gutter pattern first so it's under the stage
 		
 		deltaTime = Gdx.graphics.getDeltaTime();
 		timeAccumulator += deltaTime;
@@ -73,16 +68,19 @@ public class LibgdxGame implements ApplicationListener {
 		for (int i = 0;i<stepsToTake;i++){
 			stage.act(timeStep);
 		}
+		
         stage.draw();
 	}
 
 	@Override
 	public void resize(int width, int height) {
+		//Important values for drawing gutter pattern
 		realWidth = width;
 		realHeight = height;
+		camera.setToOrtho(false, width, height);
+		
         stage.setViewport(stageWidth, stageHeight, true);
         stage.getCamera().translate(-stage.getGutterWidth(), -stage.getGutterHeight(), 0);
-        camera.setToOrtho(false, width, height);
 	}
 
 	@Override
