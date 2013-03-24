@@ -14,22 +14,27 @@ import com.seqstudio.gameEngine.actors.FrameRateDisplayActor;
 
 public class LibgdxGame implements ApplicationListener {
 	private OrthographicCamera camera;
-	private SpriteBatch batch;
+	private SpriteBatch gutterBatch;
 	private Texture texture;
 	
 	private int stageWidth = 800;
 	private int stageHeight = 480;
-	private int realWidth = 800;
-	private int realHeight = 480;
+	private int realWidth = stageWidth;
+	private int realHeight = stageHeight;
 	private Stage stage;
 	
-	private SpriteBatch gutterBatch;
 	private Texture gutterTexture;
+
+	//Timestep logic variables
+	private float deltaTime;
+	private int stepsToTake;
+	private float timeAccumulator = 0;
+	private float timeStep = 0.008333333f;
+	
 	
 	@Override
 	public void create() {
 		gutterTexture = new Texture(Gdx.files.internal("data/gutterTexture.png"));
-		gutterBatch = new SpriteBatch();
 		
 		Actor textActor = new FrameRateDisplayActor();
 		Group primaryGroup = new Group();
@@ -45,14 +50,14 @@ public class LibgdxGame implements ApplicationListener {
         
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, stageWidth, stageHeight);
-		batch = new SpriteBatch();
+		gutterBatch = new SpriteBatch();
 	}
 
 	@Override
 	public void dispose() {
 		stage.dispose();
 
-		batch.dispose();
+		gutterBatch.dispose();
 		texture.dispose();
 	}
 
@@ -60,7 +65,14 @@ public class LibgdxGame implements ApplicationListener {
 	public void render() {	
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		drawPatternInGutters(stage);
-        stage.act(Gdx.graphics.getDeltaTime());
+		
+		deltaTime = Gdx.graphics.getDeltaTime();
+		timeAccumulator += deltaTime;
+		stepsToTake = (int)(timeAccumulator / timeStep);
+		timeAccumulator = timeAccumulator % timeStep;
+		for (int i = 0;i<stepsToTake;i++){
+			stage.act(timeStep);
+		}
         stage.draw();
 	}
 
@@ -82,8 +94,8 @@ public class LibgdxGame implements ApplicationListener {
 	}
 	
 	private void drawPatternInGutters(Stage stage){
-		batch.setProjectionMatrix(camera.combined);
-		batch.begin();
+		gutterBatch.setProjectionMatrix(camera.combined);
+		gutterBatch.begin();
 		float gutterWidth = stage.getGutterWidth();
 		float gutterHeight = stage.getGutterHeight();
 		int textureWidth = gutterTexture.getWidth();
@@ -92,8 +104,8 @@ public class LibgdxGame implements ApplicationListener {
 			//draw left and right gutters
 			for (int i = 0; i<gutterWidth*2;){
 				for (int j = 0; j<realHeight;){
-					batch.draw(gutterTexture,i,j,textureWidth,textureHeight);
-					batch.draw(gutterTexture,realWidth-gutterWidth*2+i,j,textureWidth,textureHeight);
+					gutterBatch.draw(gutterTexture,i,j,textureWidth,textureHeight);
+					gutterBatch.draw(gutterTexture,realWidth-gutterWidth*2+i,j,textureWidth,textureHeight);
 					j+=textureHeight;
 				}
 				i+=textureWidth;
@@ -102,13 +114,13 @@ public class LibgdxGame implements ApplicationListener {
 			//draw top and bottom gutters
 			for (int i = 0; i<gutterHeight*2;){
 				for (int j = 0; j<realWidth;){
-					batch.draw(gutterTexture,j,i,textureWidth,textureHeight);
-					batch.draw(gutterTexture,j,realHeight-gutterHeight*2+i,textureWidth,textureHeight);
+					gutterBatch.draw(gutterTexture,j,i,textureWidth,textureHeight);
+					gutterBatch.draw(gutterTexture,j,realHeight-gutterHeight*2+i,textureWidth,textureHeight);
 					j+=textureWidth;
 				}
 				i+=textureHeight;
 			}
 		}
-		batch.end();
+		gutterBatch.end();
 	}
 }
