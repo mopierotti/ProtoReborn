@@ -8,8 +8,8 @@ public class Main {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		cfg.title = "GameEngine";
 		cfg.useGL20 = true;
-		cfg.width = 800;
-		cfg.height = 480;
+		cfg.width = 1280;
+		cfg.height = 768;
 		
 		new LwjglApplication(new LibgdxGame(), cfg);
 	}

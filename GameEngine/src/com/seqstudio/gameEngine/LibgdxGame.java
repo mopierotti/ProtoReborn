@@ -15,8 +15,8 @@ import com.seqstudio.gameEngine.actors.FrameRateDisplayActor;
 public class LibgdxGame implements ApplicationListener {
 	private OrthographicCamera camera;
 	
-	private int stageWidth = 800;
-	private int stageHeight = 480;
+	private int stageWidth = 1280;
+	private int stageHeight = 768;
 	private int realWidth = stageWidth;
 	private int realHeight = stageHeight;
 	private Stage stage;
@@ -88,7 +88,7 @@ public class LibgdxGame implements ApplicationListener {
 	}
 
 	@Override
-	public void resume() {
+	public void resume() { 
 	}
 	
 	private void drawPatternInGutters(Stage stage){
